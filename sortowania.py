@@ -1,8 +1,6 @@
+from struktury import Node
 import random
 t = [random.randint(1, 50) for _ in range(8)]
-# print(t)
-
-# t = [5, 4, 3, 2, 1]
 
 
 def testerka_sort(n=100, it=1000):
@@ -61,7 +59,6 @@ def wstawianie(t):
     return t
 
 
-# wstawianie(t)
 def merge_sort(T):
     def merge(t1, t2):
         n1 = len(t1)
@@ -136,13 +133,128 @@ def merge_sortV2(T):
     return T
 
 
-# merge_sort([1])
-t = [random.randint(1, 10) for _ in range(10)]
-print(t)
-# t = [1, 5, 8, 2, 4, 20]
-t = merge_sortV2(t)
-print(t)
-# t = [1, 2, 3, 4, 5, 6]
-# n = len(t)
-# print(t[:n//2])
-# print(t[n//2:])
+def merge_sort_dyn(h):  # dla listy dynamicznej jednokierunkowej z wartownikiem
+    def merge(h1, h2):
+        h = Node()
+        h_fin = h
+        h1 = h1.next  # wykorzystuje że listy są z wartownikiem
+        h2 = h2.next
+        while h1 is not None and h2 is not None:
+            if h1.val < h2.val:
+                h.next = h1
+                h1 = h1.next
+            else:
+                h.next = h2
+                h2 = h2.next
+            h = h.next
+        if h1 is not None:
+            h.next = h1
+        else:
+            h.next = h2
+        return h_fin
+
+    def m_sort(h):
+        # nie wiem na razie
+        pass
+
+
+def heap_sort(T):
+    def left(i): return i*2+1
+    def right(i): return i*2+2
+    def parent(i): return (i-1)//2
+
+    def heapify(i, n, t):
+        l = left(i)
+        r = right(i)
+        max_ind = i
+
+        if l < n and t[max_ind] < t[l]:
+            max_ind = l
+        if r < n and t[max_ind] < t[r]:
+            max_ind = r
+        if max_ind != i:
+            t[i], t[max_ind] = t[max_ind], t[i]
+            heapify(max_ind, n, t)
+
+    def build_heap(t):
+        n = len(t)
+        for i in range(parent(n-1), -1, -1):
+            heapify(i, n, t)
+        return t
+
+    def h_sort(t):
+        n = len(t)
+        build_heap(t)
+        for i in range(n-1, 0, -1):
+            t[0], t[i] = t[i], t[0]
+            heapify(0, i, t)
+        return t
+    return h_sort(t)
+
+
+# dobry jeśli mamy dane, że liczby są z pewnego zakresu [a,b]. Wtedy ma złożoność O(n)
+def count_sort(t, a=0, b=10e3, stable=True):
+    def prepare_counts(t, a, b):
+        n = len(t)
+        # a = min(T)
+        # b = max(T)
+        k = b-a
+        counts = [0] * k
+        for i in range(n):
+            counts[t[i]] += 1
+        return counts
+
+    def c_sort_unstable(t, a, b):
+        n = len(t)
+        counts = prepare_counts(t, a, b)
+        res = [0]*n
+        j = 0
+        i = 0
+        while True:
+            while counts[j] == 0:
+                j += 1
+            res[i] = j
+            counts[j] -= 1
+            i += 1
+            if i == n:
+                return res
+
+    def c_sort_stable(t, a, b):
+        counts = prepare_counts(t, a, b)
+        n = len(t)
+        k = len(counts)
+        for i in range(1, k):  # cumulative sum
+            counts[i] += counts[i-1]
+        res = [0]*n
+        for i in range(n-1, -1, -1):
+            res[counts[t[i]]-1] = t[i]
+            counts[t[i]] -= 1
+        return res
+    b += 1
+    if stable:
+        return c_sort_stable(t, a, b)
+    else:
+        return c_sort_unstable(t, a, b)
+
+
+def test_c_sort(a=0, b=10e2, n=10e4, it=10e4):
+    err = False
+    a = int(a)
+    b = int(b)
+    n = int(n)
+    it = int(it)
+    for i in range(int(it)):
+        t = [random.randint(a, b) for _ in range(n)]
+        stable = count_sort(t, a, b, True)
+        unstable = count_sort(t, a, b, False)
+        t.sort()
+        if stable != unstable or stable != t:
+            print(f"Bład dla {i}")
+            err = True
+        else:
+            print(f"Dobrze dla {i}")
+
+    if not err:
+        print("Bez błedów")
+
+
