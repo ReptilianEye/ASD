@@ -1,6 +1,7 @@
 # testy.py
 # from signal import signal, alarm, SIGALRM
 
+#plik "testypierwotne.py" zmodyfikowany przez kolege aby moc korzystac z wlasnych testow
 import time
 from copy import deepcopy
 import sys
