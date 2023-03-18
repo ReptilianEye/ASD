@@ -8,18 +8,23 @@ def czy_same_zera(t):
     return True
 
 
-def wyzeruj(t, end, z_lewej):
+def wyzeruj(t, collected, z_lewej):
     n = len(t)
     if z_lewej:
-        i = 0
-        step = 1
+        new_n = n-collected-1
+        i = collected+1
+        # end = n
     else:
-        i = n-1
-        step = -1
-    while i != end:
-        t[i] = 0
-        i += step
-    t[end] = 0
+        new_n = collected
+        i = 0
+        # end = collected
+    new_t = [0 for _ in range(new_n)]
+    j = 0
+    while j < new_n:
+        new_t[j] = t[i]
+        i += 1
+        j += 1
+    return new_t
 
 
 def stop_snieg(t):
@@ -83,36 +88,87 @@ def ilosc_niezerowych(t, i, n):
     return min(w_lewo, w_prawo)
 
 
+def dystans(i, n):
+    return min(i, n-i-1)
+
+
 def snow(t):
-    n = len(t)
     s = 0
     while not czy_same_zera(t):
+        n = len(t)
+
         Tl = generuj_TL(t)
         Tp = generuj_TP(t)
         czy_z_lewej = True
-        pnp = -1
-        wnp = -1
+        pnp = -1  # pozycja najlepszego pola
+        wnp = -1  # wartosc najlepszego pola
         l = 0
         p = n-1
-        while l <= p:
-            i = l
-            aktualne = t[i]-min(Tl[i], Tp[i+1])-ilosc_niezerowych(t,i, n)
+        step = 0
+        while l+step <= p-step:
+            i = l+step
+            aktualne = t[i]-min(Tl[i], Tp[i+1])-step
             if wnp < aktualne:
                 wnp = aktualne
                 pnp = i
                 czy_z_lewej = True if min(
                     Tl[i], Tp[i+1]) == Tl[i] else False
-            i = p
-            aktualne = t[i]-min(Tl[i], Tp[i+1])-ilosc_niezerowych(t,i, n)
+            i = p-step
+            aktualne = t[i]-min(Tl[i], Tp[i+1])-step
             if wnp < aktualne:
                 wnp = aktualne
                 pnp = i
                 czy_z_lewej = True if min(
                     Tl[i], Tp[i+1]) == Tl[i] else False
-            l += 1
-            p -= 1
+            step += 1
         s += t[pnp]
-        wyzeruj(t, pnp, czy_z_lewej)
+        t = wyzeruj(t, pnp, czy_z_lewej)
+        stop_snieg(t)
+    return s
+
+
+def prepare(t):
+    pass
+
+#prawdopodobnie coś z sortowaniem
+def snowV2(t):
+    # s = 0
+    # the_best = prepare(t)
+    # the_best.sort(reversed=True)
+    # round=0
+    # for i in range(n):
+
+
+
+    while not czy_same_zera(t):
+        n = len(t)
+
+        Tl = generuj_TL(t)
+        Tp = generuj_TP(t)
+        czy_z_lewej = True
+        pnp = -1  # pozycja najlepszego pola
+        wnp = -1  # wartosc najlepszego pola
+        l = 0
+        p = n-1
+        step = 0
+        while l+step <= p-step:
+            i = l+step
+            aktualne = t[i]-min(Tl[i], Tp[i+1])-step
+            if wnp < aktualne:
+                wnp = aktualne
+                pnp = i
+                czy_z_lewej = True if min(
+                    Tl[i], Tp[i+1]) == Tl[i] else False
+            i = p-step
+            aktualne = t[i]-min(Tl[i], Tp[i+1])-step
+            if wnp < aktualne:
+                wnp = aktualne
+                pnp = i
+                czy_z_lewej = True if min(
+                    Tl[i], Tp[i+1]) == Tl[i] else False
+            step += 1
+        s += t[pnp]
+        t = wyzeruj(t, pnp, czy_z_lewej)
         stop_snieg(t)
     return s
 
@@ -120,4 +176,4 @@ def snow(t):
 # S = [1, 7, 3, 4, 1]
 # print(snow(S))
 # zmien all_tests na True zeby uruchomic wszystkie testy
-runtests(snow, all_tests=False)
+runtests(snow, all_tests=True)
