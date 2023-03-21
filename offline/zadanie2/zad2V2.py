@@ -52,6 +52,7 @@ def snow(t):
         heapify(t, 0, i)
     # t = heap_sort(t)
     # # t = sorted(t, reverse=True)
+    
     # i = 0
     # while t[i] - i > 0:
     #     i += 1

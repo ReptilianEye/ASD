@@ -1,179 +1,64 @@
 from zad2testy import runtests
+"""
+Piotr Rzadkowski
+Algorytm opiera się na dwóch założeniach: rozwiązaniem jest suma k najwiekszych pól i kolejność wyboru pól nie ma znaczenia. Wynikają one z tego, że w każdej rundzie każde pole "topnieje" o dokładnie tyle samo, więc największe pola zawsze pozostaną największe (tj. najbardziej opłacalne do zebrania).
+Oczekiwany wynik można przedstawić jako sume: p1+(p2-1)+...+(pk-k)=p0+p1+...pk-(0+1+...+k). (p0...pk to wartości pól) Widać z tego, że dobór p0,p2...pk do sumy nie ma wpływu na poprawność.
+
+Stąd wynika wzór, że po posortowaniu malejąco tablicy z polami to wartości "opłacalne" muszą spełniać warunek t[i] > i.
+Jeśli t[i] == i to pole nie ma znaczenia do wyniku, a dla t[i] < i wzięcie tego będzie wyborem nieoptymalnym.
+
+Sam algorytm opiera się na funkcji partition, której celem jest znalezienie takiej liczby, dla której t[i]==i. Robi to aż do momentu kiedy znajdzie, lub szukany przedział będzie pusty. Jeśli t[i]>i to wywołujemy partition() dla prawej strony, w innym przypadku - dla lewej. 
+"""
 
 
-def czy_same_zera(t):
-    for el in t:
-        if el != 0:
-            return False
-    return True
+def find_med(A: list, p: int, r: int):
+    if p == r or p+1 == r:
+        return r
+    a = A[r]
+    b = A[r-1]
+    c = A[r-2]
+    median = a+b+c - max(a, b, c)-min(a, b, c)
+    for i in range(3):
+        if A[r-i] == median:
+            return r-i
 
 
-def wyzeruj(t, collected, z_lewej):
+def partition(A: list, p: int, r: int):
+    m = find_med(A, p, r)  # 0.54 sek
+    A[m], A[r] = A[r], A[m]
+    x = A[r]
+    i = p-1
+
+    for j in range(p, r):
+        if A[j] >= x:
+            i += 1
+            A[i], A[j] = A[j], A[i]
+    A[i+1], A[r] = A[r], A[i+1]
+    return i+1
+
+
+def snow(t: list):
     n = len(t)
-    if z_lewej:
-        new_n = n-collected-1
-        i = collected+1
-        # end = n
-    else:
-        new_n = collected
-        i = 0
-        # end = collected
-    new_t = [0 for _ in range(new_n)]
-    j = 0
-    while j < new_n:
-        new_t[j] = t[i]
+    p = 0
+    r = n-1
+    while p <= r:
+        q = partition(t, p, r)
+        if t[q]-q == 0:
+            break
+        if t[q]-q > 0:
+            p = q+1
+        else:
+            r = q-1
+    i = 0
+    while t[q-i]-(q-i) < 0:
         i += 1
-        j += 1
-    return new_t
-
-
-def stop_snieg(t):
-    n = len(t)
-    for i in range(n):
-        t[i] = max(t[i]-1, 0)
-
-
-def generuj_TL(t):
-    n = len(t)
-    Tl = [0 for _ in range(n)]
-    Tl[0] = t[0]
-    for i in range(1, n):
-        Tl[i] = t[i]+Tl[i-1]
-    Tl.insert(0, 0)  # wartownik
-    return Tl
-
-
-def generuj_TP(t):
-    n = len(t)
-    Tl = [0 for _ in range(n)]
-    Tl[n-1] = t[n-1]
-    for i in range(n-2, -1, -1):
-        Tl[i] = t[i]+Tl[i+1]
-    Tl.append(0)  # wartownik
-    return Tl
-
-
-def generuj_ilosc_niezerowych(t):
-    n = len(t)
-    niezerowe = [0 for _ in range(len(t))]
-    for i in range(1, n-1):
-
-        niezerowe[i] = niezerowe[i-1]
-        if t[i] != 0:
-            niezerowe[i] += 1
-    for i in range(n-2, 0, -1):
-        niezerowe[i] = min(t[i-1], t[i+1])
-        if t[i] != 0:
-            niezerowe[i] += 1
-    return niezerowe
-
-
-# t = [1, 2, 0, 0, 2]
-# print(generuj_ilosc_niezerowych(t))
-
-
-def ilosc_niezerowych(t, i, n):
-    w_lewo = 0
-    j = i-1
-    while j >= 0:
-        if t[j] != 0:
-            w_lewo += 1
-        j -= 1
-    w_prawo = 0
-    j = i+1
-    while j < n:
-        if t[j] != 0:
-            w_prawo += 1
-        j += 1
-    return min(w_lewo, w_prawo)
-
-
-def dystans(i, n):
-    return min(i, n-i-1)
-
-
-def snow(t):
+    q = q-i
+    # q-=1 #prawdopodobnie mozna by tak ale jest to za bardzo ryzykowne na razie
     s = 0
-    while not czy_same_zera(t):
-        n = len(t)
 
-        Tl = generuj_TL(t)
-        Tp = generuj_TP(t)
-        czy_z_lewej = True
-        pnp = -1  # pozycja najlepszego pola
-        wnp = -1  # wartosc najlepszego pola
-        l = 0
-        p = n-1
-        step = 0
-        while l+step <= p-step:
-            i = l+step
-            aktualne = t[i]-min(Tl[i], Tp[i+1])-step
-            if wnp < aktualne:
-                wnp = aktualne
-                pnp = i
-                czy_z_lewej = True if min(
-                    Tl[i], Tp[i+1]) == Tl[i] else False
-            i = p-step
-            aktualne = t[i]-min(Tl[i], Tp[i+1])-step
-            if wnp < aktualne:
-                wnp = aktualne
-                pnp = i
-                czy_z_lewej = True if min(
-                    Tl[i], Tp[i+1]) == Tl[i] else False
-            step += 1
-        s += t[pnp]
-        t = wyzeruj(t, pnp, czy_z_lewej)
-        stop_snieg(t)
+    for i in range(min(q+1, n)):
+        s += t[i]-i
     return s
 
 
-def prepare(t):
-    pass
-
-#prawdopodobnie coś z sortowaniem
-def snowV2(t):
-    # s = 0
-    # the_best = prepare(t)
-    # the_best.sort(reversed=True)
-    # round=0
-    # for i in range(n):
-
-
-
-    while not czy_same_zera(t):
-        n = len(t)
-
-        Tl = generuj_TL(t)
-        Tp = generuj_TP(t)
-        czy_z_lewej = True
-        pnp = -1  # pozycja najlepszego pola
-        wnp = -1  # wartosc najlepszego pola
-        l = 0
-        p = n-1
-        step = 0
-        while l+step <= p-step:
-            i = l+step
-            aktualne = t[i]-min(Tl[i], Tp[i+1])-step
-            if wnp < aktualne:
-                wnp = aktualne
-                pnp = i
-                czy_z_lewej = True if min(
-                    Tl[i], Tp[i+1]) == Tl[i] else False
-            i = p-step
-            aktualne = t[i]-min(Tl[i], Tp[i+1])-step
-            if wnp < aktualne:
-                wnp = aktualne
-                pnp = i
-                czy_z_lewej = True if min(
-                    Tl[i], Tp[i+1]) == Tl[i] else False
-            step += 1
-        s += t[pnp]
-        t = wyzeruj(t, pnp, czy_z_lewej)
-        stop_snieg(t)
-    return s
-
-
-# S = [1, 7, 3, 4, 1]
-# print(snow(S))
-# zmien all_tests na True zeby uruchomic wszystkie testy
 runtests(snow, all_tests=True)
