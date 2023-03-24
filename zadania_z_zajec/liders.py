@@ -4,12 +4,10 @@
 # jeśli ten licznik jest rowny -1 i jeśli nie jesteśmy na końcu tabeli to naszym nowym literem jest element na którym aktualnie stoi iterator i ustawiamy licznik na 1
 # idziemy dalej i jesli kolejny element jest rowny aktualnemu liderowi zwiększamy licznik, a jeśli nie do zmniejszamy licznik
 # Jeśli na koniec licznik jest większy od 0 to znaczy, że lider istnieje, jesli nie to znaczy że nie istnieje
-import sys
-sys.path.append('../')
-
-import random
 from struktury import Stack
-
+import random
+import sys
+sys.path.append('../')  # potrzebne aby użyć napisanego stosu
 
 
 def f_leader(t):  # szuka lidera w czasie liniowym; zwraca lidera jeśli go znajdzie, w innym przypadku -1

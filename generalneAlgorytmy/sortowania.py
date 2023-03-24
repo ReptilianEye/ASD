@@ -192,16 +192,50 @@ def heap_sort(T):
     return h_sort(t)
 
 
+def quick_sort(t, classic=True):
+    def partition(A, l, r):
+        x = A[r]
+        i = l-1
+        for j in range(l, r):
+            if A[j] <= x:
+                i += 1
+                A[i], A[j] = A[j], A[i]
+        A[i+1], A[r] = A[r], A[i+1]
+        return i+1
+
+    # bardzo mocny, bo wykonuje mniej operacji niż heap_sort. Wadą jest złożoność kwadratowa w pesymistycznym przypadku
+    def classic_quick_sort(A, l, r):
+        if l < r:
+            q = partition(A, l, r)
+            classic_quick_sort(A, l, q-1)
+            classic_quick_sort(A, q+1, r)
+    # wariacja klasycznego. Benefitem jest zredukowana głebokość rekursji, na rzecz uzycia pętli
+
+    def rec_depth_quick_sort(A, l, r):
+        while l < r:
+            q = partition(A, l, r)
+            if q-l < r-q:
+                rec_depth_quick_sort(A, l, q-1)
+                l = q+1
+            else:
+                rec_depth_quick_sort(A, q+1, r)
+                r = q-1
+    if classic:
+        classic_quick_sort(t, 0, len(t)-1)
+    else:
+        rec_depth_quick_sort(t, 0, len(t)-1)
+
+
 # dobry jeśli mamy dane, że liczby są z pewnego zakresu [a,b]. Wtedy ma złożoność O(n)
 def count_sort(t, a=0, b=10e3, stable=True):
     def prepare_counts(t, a, b):
         n = len(t)
         # a = min(T)
         # b = max(T)
-        k = b-a
+        k = b-a+1
         counts = [0] * k
         for i in range(n):
-            counts[t[i]] += 1
+            counts[t[i]-a] += 1
         return counts
 
     def c_sort_unstable(t, a, b):
@@ -256,5 +290,3 @@ def test_c_sort(a=0, b=10e2, n=10e4, it=10e4):
 
     if not err:
         print("Bez błedów")
-
-
