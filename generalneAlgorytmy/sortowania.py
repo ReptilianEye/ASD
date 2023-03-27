@@ -123,10 +123,11 @@ def merge_sortV2(T):
             t[l+i] = t_rob[i]
 
     def m_sort(t, l, p):
-        if p-l+1 > 1:
-            print(f"Lewy: {l}, prawy: {p}")
-            m_sort(t, l, l+(p-l)//2)
-            m_sort(t, l+(p-l)//2+1, p)
+        if p > l:
+            # print(f"Lewy: {l}, prawy: {p}")
+            mid = l+(p-l)//2
+            m_sort(t, l, mid)
+            m_sort(t, mid+1, p)
             merge(t, l, p)
 
     m_sort(T, 0, len(T)-1)
