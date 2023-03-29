@@ -1,3 +1,6 @@
+from copy import deepcopy
+
+
 def partition(A, l, r):
     x = A[r]
     i = l-1
@@ -50,6 +53,20 @@ class Node:
         self.next = None
 
 
+def get_k_el(p, k):
+    new_p = deepcopy(p)
+    curr = new_p
+    i = 0
+    while curr is not None and i < k-1:
+        curr = curr.next
+        i += 1
+    if curr is None:
+        return -1, None
+    next_after = curr.next
+    curr.next = None
+    return new_p, next_after
+
+
 def merge(p1, p2):
     p = Node(None)
     curr = p
@@ -68,63 +85,59 @@ def merge(p1, p2):
     return curr.next
 
 
-def return_mid(p):
-    s = p
-    n = 0
-    while s is not None:
-        n += 1
-        s = s.next
-    s = p
-    for _ in range(n//2-1):
-        s = s.next
-    return s
+def split(p, p1, p2):
+    f = True
+    while p:
+        if f:
+            p1.next = p
+            p1 = p1.next
+        else:
+            p2.next = p
+            p2 = p2.next
+        p = p.next
+        f = not f
+    if p1 is not None:
+        p1.next = None
+    if p2 is not None:
+        p2.next = None
 
 
 def merge_sort(p):
-    if p.next is not None:
-        mid = return_mid(p)
-        p2 = mid.next
-        mid.next = None
-        p1 = merge_sort(p)
-        p2 = merge_sort(p2)
+    if p is not None and p.next is not None:
+        p1 = Node(None)
+        p2 = Node(None)
+        split(p, p1, p2)
+        p1 = merge_sort(p1.next)
+        p2 = merge_sort(p2.next)
         p = merge(p1, p2)
     return p
 
 
-def prepare_to_sort(h, e):
-    curr = h
-    while curr is not e:
-        curr = curr.next
-    curr.next = e
-    curr.next.next = None
-    return h
-
-
-# def copy_to_main(h, after_sort):
-#     while after_sort is not None:
-#         h.val = after_sort.val
-#         after_sort = after_sort.next
-#         h = h.next
-
-
 def zad2(p, k):
-    fin = Node(None)
-    fin.next = p
-    head = p
-    end = p
+    first = Node(None)
+    first.next = p
+    p = first
+    while True:
+        cutted, next_after = get_k_el(p.next, k)
+        if cutted == -1:
+            break
+        cutted_sorted = merge_sort(cutted)
+        p.next = cutted_sorted
+        temp = p.next
+        while temp.next is not None:
+            temp = temp.next
+        temp.next = next_after
+        p = p.next
+    first = first.next
+    while first:
+        print(first.val)
+        first = first.next
 
-    for _ in range(k):
-        end = end.next
-    while end is not None:
-        curr = prepare_to_sort(head, end)
-        after_sort = merge_sort(curr)
-        copy_to_main(head, after_sort)
-        head = head.next
-        end = end.next
+
+a = Node(2)
+a.next = Node(1)
+a.next.next = Node(4)
+a.next.next.next = Node(3)
 
 
-a = Node(5)
-a.next = Node(2)
-a.next.next = Node(3)
-
-zad2(a, 1)
+zad2(a, 2)
