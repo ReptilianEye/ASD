@@ -1,3 +1,5 @@
+from copy import deepcopy
+import string
 from struktury import Node
 import random
 t = [random.randint(1, 50) for _ in range(8)]
@@ -291,3 +293,70 @@ def test_c_sort(a=0, b=10e2, n=10e4, it=10e4):
 
     if not err:
         print("Bez błedów")
+
+
+alfabeth = string.ascii_lowercase
+# na przykladzie sortowania slow tej samej dlugosci
+
+
+def radix_sort(A):
+    def get_index(char):
+        t = ord(char) - ord(alfabeth[0])
+        return t
+
+    def csort_by_letters(A, col):
+        n = len(A)
+        letters = len(alfabeth)
+        Counts = [0]*letters
+        for el in A:
+            Counts[get_index(el[col])] += 1
+        for i in range(1, letters):
+            Counts[i] += Counts[i-1]
+        Result = [0]*n
+        for i in range(n-1, -1, -1):
+            p = get_index(A[i][col])
+            Result[Counts[p]-1] = A[i]
+            Counts[p] -= 1
+        return Result
+    def radix_words(A):
+        words_length = len(A[0])
+        for i in range(words_length-1, -1, -1):
+            A = csort_by_letters(A, i)
+        return A
+
+    def get_digit_index(num,col):
+        pass
+    def csort_by_numbers(A,col):
+        n=len(A)
+        digits = 10
+        C = [0]*digits
+        for el in A:
+            C[el%col]
+
+    def radix_numbers(A):
+        numbers_length = len(A[0])
+        for i in range(numbers_length-1, -1, -1):
+            A = csort_by_numbers(A, i)
+        return A
+
+
+def test_radix(n=100, w_length=100, tries=100):
+    err = False
+    for _ in range(tries):
+        l = []
+        for _ in range(n):
+            s = ""
+            for _ in range(w_length):
+                s = s+alfabeth[random.randint(0, len(alfabeth)-1)]
+            l.append(s)
+        prime = deepcopy(l)
+        prime.sort()
+        res = radix_sort(l)
+        if prime != res:
+            print("BLAAAD")
+            err = True
+    if not err:
+        print("Success!!!")
+
+
+test_radix()
