@@ -25,24 +25,24 @@ def print_heaps(left_heap, right_heap):
 
 
 def prepare_heaps(T, k, p):
-    h_min_left = PriorityQueue()
-    h_max_right = PriorityQueue()
+    k_biggest_heap = PriorityQueue()
+    rest_heap = PriorityQueue()
     for i in range(k):
         T[i].heap = "L"
-        h_min_left.put(((T[i].val, i), T[i]))
+        k_biggest_heap.put(((T[i].val, i), T[i]))
 
     for i in range(p-k):
         curr = T[k+i]
-        if h_min_left.queue[0][1].val < curr.val:
-            lower = h_min_left.get()[1]
+        if k_biggest_heap.queue[0][1].val < curr.val:
+            lower = k_biggest_heap.get()[1]
             T[lower.i].heap = "R"
             T[curr.i].heap = "L"
-            h_min_left.put(((curr.val, curr.i), curr))
-            h_max_right.put(((-lower.val, lower.i), lower))
+            k_biggest_heap.put(((curr.val, curr.i), curr))
+            rest_heap.put(((-lower.val, lower.i), lower))
         else:
-            h_max_right.put(((-curr.val, curr.i), curr))
+            rest_heap.put(((-curr.val, curr.i), curr))
 
-    return h_min_left, h_max_right
+    return k_biggest_heap, rest_heap
 
 
 def ksum(T, k, p):
@@ -52,72 +52,53 @@ def ksum(T, k, p):
         new = Node(T[i])
         new.i = i
         T[i] = new
-    mainHeap, pomHeap = prepare_heaps(T, k, p)
+    main_heap, rest_heap = prepare_heaps(T, k, p)
     main_size = k
     for i in range(p, n):
-        # print_heaps(mainHeap, pomHeap)
 
-        while not mainHeap.empty() and mainHeap.queue[0][1].i < i-p:
-            mainHeap.get()
-        while not pomHeap.empty() and pomHeap.queue[0][1].i < i-p:
-            pomHeap.get()
-        # print(mainHeap.queue[0][1].val)
-        s += mainHeap.queue[0][1].val
+        while not main_heap.empty() and main_heap.queue[0][1].i < i-p:
+            main_heap.get()
+        while not rest_heap.empty() and rest_heap.queue[0][1].i < i-p:
+            rest_heap.get()
+
+        s += main_heap.queue[0][1].val
 
         deleted = T[i-p]
         if T[deleted.i].heap == "L":
             main_size -= 1
-        if deleted == mainHeap.queue[0][1]:
-            mainHeap.get()
-        if deleted == pomHeap.queue[0][1]:
-            pomHeap.get()
 
         next = T[i]  # i == next.i
 
         if main_size == k:
-            top_main = mainHeap.queue[0][1]
+            top_main = main_heap.queue[0][1]
             if top_main.val < next.val:
-                to_main = mainHeap.get()[1]
+                to_main = main_heap.get()[1]
                 to_pom = top_main
                 T[next.i].heap = "L"
-                mainHeap.put(((next.val, next.i), next))
+                main_heap.put(((next.val, next.i), next))
             else:
                 to_pom = next
-            pomHeap.put(((-to_pom.val, to_pom.i), to_pom))
+            rest_heap.put(((-to_pom.val, to_pom.i), to_pom))
             T[to_pom.i].heap = "R"
 
         else:
-            if pomHeap.empty():
+            if rest_heap.empty():
                 to_main = next
             else:
-                top_pom = pomHeap.queue[0][1]
+                top_pom = rest_heap.queue[0][1]
                 if top_pom.val > next.val:
-                    pomHeap.get()
-                    pomHeap.put(((-next.val, next.i), next))
+                    rest_heap.get()
+                    rest_heap.put(((-next.val, next.i), next))
                     to_main = top_pom
                 else:
                     to_main = next
-            mainHeap.put(((to_main.val, to_main.i), to_main))
+            main_heap.put(((to_main.val, to_main.i), to_main))
             T[to_main.i].heap = "L"
             main_size += 1
 
-    s += mainHeap.queue[0][1].val
+    s += main_heap.queue[0][1].val
     return s
 
-
-# T = [7, 9, 1, 5, 8, 6, 2, 12]
-# k = 4
-# p = 5
-
-# T = [5, 8, 3, 1, 2, 8, 5, 4, 3, 2, 1]
-# p = 4
-# k = 2
-
-# T = [51, 56, 45, 6, 75, 52, 49, 58, 71, 36]
-# k = 2
-# p = 4
-# res = ksum(T, k, p)
-# print(res)
 
 # zmien all_tests na True zeby uruchomic wszystkie testy
 runtests(ksum, all_tests=True)
