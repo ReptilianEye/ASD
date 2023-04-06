@@ -8,7 +8,7 @@ from kol1testy import runtests
 
 def partition(A, l, r):
     x = A[r]
-    
+
     i = l-1
     for j in range(l, r):
         if A[j] <= x:
@@ -33,18 +33,20 @@ def find_k_el(A, k):
             r = q-1
 
 
-
 def ksum(T, k, p):
     n = len(T)
     s = 0
     fin = p-k
     for i in range(n-p+1):
         val = find_k_el(T[i:p+i], fin)
-
+        print(val)
         s += val
     return s
 
 
-
+T = [5, 8, 3, 1, 2, 8, 5, 4, 3, 2, 1]
+p = 4
+k = 2
+print(ksum(T,k,p))
 # zmien all_tests na True zeby uruchomic wszystkie testy
-runtests(ksum, all_tests=True)
+# runtests(ksum, all_tests=True)
