@@ -1,27 +1,29 @@
 from zad4testy import runtests
-# Piotr Rzadkowski
-# Algorytm najpierw znajduje najkrotsza sciezke a nastepnie znajduje kazda o takiej samej dlugosci (wszystkie najkrotsze) i zlicza krawedzie po ktorych przechodzi
-# Na koniec sprawdza czy jest taka krawedz po ktorej przeszly wszystkie krawedzie, jesli tak to ja zwraca
-# złożonośc: O(V + E)
 
 
 from collections import deque
 
 
-def find_shortest_length(G, s, e):
+def shortest_and_indegrees(G, s, e):
     n = len(G)
     vis = [False for _ in range(n)]
+    indeegres = [0 for _ in range(n)]
     q = deque()
+    shortest = None
     q.append((s, 0))
     while len(q) > 0:
         v, length = q.popleft()
         vis[v] = True
         for u in G[v]:
             if not vis[u]:
-                if u == e:
-                    return length+1
-                q.append((u, length+1))
-    return None
+                if u != e:
+                    q.append((u, length+1))
+                if u == e and shortest is None:
+                    shortest = length+1
+            indeegres[u] += 1
+    for u in G[e]:
+        indeegres[u] += 1
+    return shortest, indeegres
 
 
 def count_path(G, times_visited, path):
@@ -40,31 +42,30 @@ def dfs_with_limit(v, parent, end, path, G, steps_left, times_visited):
         return
     if steps_left > 0:
         for u in G[v]:
-            if u != parent and u not in path:
+            if u != parent:
                 path.append(u)
                 dfs_with_limit(u, v, end, path, G,
                                steps_left - 1, times_visited)
                 path.pop()
 
 
-def count_edges_in_shortest_path(s, e, G, shortest):
+def count_edges_in_shortest_path(s, e, G, shortest, indeegres):
     n = len(G)
 
     global paths
     paths = 0
 
-    times_visited = [[0 for _ in range(len(G[i]))] for i in range(n)]
+    paths_through_nodes = [0 for _ in range(n)]
 
-    dfs_with_limit(s, -1, e, [s], G, shortest, times_visited)
+    dfs_with_limit(s, -1, e, [s], G, shortest, indeegres, paths_through_nodes)
     for v in range(n):
-        for j in range(len(G[v])):
-            if times_visited[v][j] == paths:
-                return (v, G[v][j])
+        if times_visited[v][j] == paths:
+            return (v, G[v][j])
     return None
 
 
 def longer(G, s, t):
-    shortest = find_shortest_length(G, s, t)
+    shortest, indeegres = shortest_and_indegrees(G, s, t)
     if shortest is None:
         return shortest
 
@@ -73,16 +74,21 @@ def longer(G, s, t):
 
 # G = [[1, 2], [0, 3], [0, 4], [1, 5, 6], [2, 7], [3, 8], [3, 8], [
 #     4, 8], [5, 6, 7, 9], [8, 10, 11], [9, 12], [9, 12], [10, 11]]
+G = [[1, 4], [0, 2], [1, 3], [2, 5], [0, 5], [4, 3]]
 
-# for i in range(len(G)):
-#     for el in G[i]:
-#         if el > i:
-#             print(i, el)
-# G = [[1, 4], [0, 2], [1, 3], [2, 5], [0, 5], [4, 3]]
-# s = 0
-# t = 2
-# print(longer(G, s, t))
+for i in range(len(G)):
+    for el in G[i]:
+        if el > i:
+            print(i, el)
+s = 0
+t = 2
+for i in range(len(G)):
+    for el in G[i]:
+        if el > i:
+            print(i, el)
+
+print(longer(G, s, t))
 
 
 # zmien all_tests na True zeby uruchomic wszystkie testy
-runtests(longer, all_tests=True)
+# runtests(longer, all_tests=True)

@@ -1,14 +1,12 @@
-from zad5testy import runtests
-
-from math import inf
-
-from queue import PriorityQueue
 
 # Piotr Rzadkowski
-# algorytm bazuje na znajdywaniu najkrotszej sciezki do wierzcholka autorstwa Dijskry korzystajac z kolejki priorytetowej.
+# algorytm bazuje na znajdywaniu najkrotszej sciezki do wierzcholka autorstwa Dijskry.
 # wierzcholki zakrzywione sa zlepiane w jeden wierzcholek, a krawedzie od innych wierzcholkow zamieniane na jedna najmniejsza
 # jesli algorytm skonczy update wierzcholka koncowego, konczy swoje dzialanie
-#zlozonosc: O((E+V)*logV)
+#zlozonosc: O((E+V)*V)
+
+from zad5testy import runtests
+from math import inf
 
 
 class Node:
@@ -17,16 +15,25 @@ class Node:
         self.wage = wage
 
 
+def find_lowest_undone(cost, Q):
+    min_v = inf
+    lowest = None
+    for i in range(len(cost)):
+        if not Q[i] and cost[i] < min_v:
+            min_v = cost[i]
+            lowest = i
+    return lowest
+
+
 def shortest_paths_dijkstra(G, s, e):
     n = len(G)-1
-    q = PriorityQueue()
     cost = [inf for _ in range(n+1)]
     Q = [False for _ in range(n+1)]
     cost[s] = 0
-    q.put((0, s))
-
-    while not q.empty():
-        v = q.get()[1]
+    while True:
+        v = find_lowest_undone(cost, Q)
+        if v is None:
+            break
         Q[v] = True
         for u in G[v]:
             dest = u.dest
@@ -34,11 +41,17 @@ def shortest_paths_dijkstra(G, s, e):
                 wage = u.wage
                 if cost[dest] > cost[v] + wage:
                     cost[dest] = cost[v] + wage
-                    q.put((cost[dest], dest))
-            if v == e:
+            if dest == e:
                 break
 
     return cost
+
+
+def find_edge(nodes, to_find):
+    for n in nodes:
+        if n.dest == to_find:
+            return True
+    return False
 
 
 def spacetravel(n, E, S, a, b):
@@ -55,17 +68,26 @@ def spacetravel(n, E, S, a, b):
     G = [[] for _ in range(n+1)]
     for edge in E:
         v, u, wage = edge
-        if not zakrzywione[v] and not zakrzywione[u]:
+        if zakrzywione[v] ^ zakrzywione[u]:
+            if zakrzywione[u]:
+                v, u = u, v
+            if find_edge(G[u], n):
+                for i in range(len(G[u])):
+                    if G[u][i].dest == n:
+                        G[u][i].wage = min(G[u][i].wage, wage)
+                        break
+                for i in range(len(G[n])):
+                    if G[n][i].dest == u:
+                        G[n][i].wage = min(G[n][i].wage, wage)
+                        break
+            else:
+                G[u].append(Node(n, wage))
+                G[n].append(Node(u, wage))
+        elif not zakrzywione[u] and not zakrzywione[v]:
             G[v].append(Node(u, wage))
             G[u].append(Node(v, wage))
-
-        elif zakrzywione[v] and zakrzywione[u]:
-            continue
         else:
-            if zakrzywione[v]:
-                u, v = v, u
-            G[v].append(Node(n, wage))
-            G[n].append(Node(v, wage))
+            pass
 
     costs = shortest_paths_dijkstra(G, a, b)
     if costs[b] == inf and zakrzywione[b]:

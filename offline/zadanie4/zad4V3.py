@@ -1,26 +1,28 @@
 from zad4testy import runtests
-# Piotr Rzadkowski
-# Algorytm najpierw znajduje najkrotsza sciezke a nastepnie znajduje kazda o takiej samej dlugosci (wszystkie najkrotsze) i zlicza krawedzie po ktorych przechodzi
-# Na koniec sprawdza czy jest taka krawedz po ktorej przeszly wszystkie krawedzie, jesli tak to ja zwraca
-# złożonośc: O(V + E)
 
 
 from collections import deque
+
+
+class path:
+    def __init__(self, v, len) -> None:
+        self.v = v
+        self.len = len
 
 
 def find_shortest_length(G, s, e):
     n = len(G)
     vis = [False for _ in range(n)]
     q = deque()
-    q.append((s, 0))
+    q.append(path(s, 0))
     while len(q) > 0:
-        v, length = q.popleft()
-        vis[v] = True
-        for u in G[v]:
+        v = q.popleft()
+        vis[v.v] = True
+        if v.v == e:
+            return v.len
+        for u in G[v.v]:
             if not vis[u]:
-                if u == e:
-                    return length+1
-                q.append((u, length+1))
+                q.append(path(u, v.len+1))
     return None
 
 
@@ -40,7 +42,7 @@ def dfs_with_limit(v, parent, end, path, G, steps_left, times_visited):
         return
     if steps_left > 0:
         for u in G[v]:
-            if u != parent and u not in path:
+            if u != parent:
                 path.append(u)
                 dfs_with_limit(u, v, end, path, G,
                                steps_left - 1, times_visited)

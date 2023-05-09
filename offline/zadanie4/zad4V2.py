@@ -1,32 +1,34 @@
 from zad4testy import runtests
-# Piotr Rzadkowski
-# Algorytm najpierw znajduje najkrotsza sciezke a nastepnie znajduje kazda o takiej samej dlugosci (wszystkie najkrotsze) i zlicza krawedzie po ktorych przechodzi
-# Na koniec sprawdza czy jest taka krawedz po ktorej przeszly wszystkie krawedzie, jesli tak to ja zwraca
-# złożonośc: O(V + E)
 
 
 from collections import deque
+
+
+class path:
+    def __init__(self, v, len) -> None:
+        self.v = v
+        self.len = len
 
 
 def find_shortest_length(G, s, e):
     n = len(G)
     vis = [False for _ in range(n)]
     q = deque()
-    q.append((s, 0))
+    q.append(path(s, 0))
     while len(q) > 0:
-        v, length = q.popleft()
-        vis[v] = True
-        for u in G[v]:
+        v = q.popleft()
+        vis[v.v] = True
+        if v.v == e:
+            return v.len
+        for u in G[v.v]:
             if not vis[u]:
-                if u == e:
-                    return length+1
-                q.append((u, length+1))
+                q.append(path(u, v.len+1))
     return None
 
 
-def count_path(G, times_visited, path):
+def count_path(times_visited, path):
     for i in range(len(path)-1):
-        times_visited[path[i]][G[path[i]].index(path[i+1])] += 1
+        times_visited[path[i]][path[i+1]] += 1
 
 
 paths = 0
@@ -36,11 +38,11 @@ def dfs_with_limit(v, parent, end, path, G, steps_left, times_visited):
     if v == end:
         global paths
         paths += 1
-        count_path(G, times_visited, path)
+        count_path(times_visited, path)
         return
     if steps_left > 0:
         for u in G[v]:
-            if u != parent and u not in path:
+            if u != parent:
                 path.append(u)
                 dfs_with_limit(u, v, end, path, G,
                                steps_left - 1, times_visited)
@@ -53,13 +55,12 @@ def count_edges_in_shortest_path(s, e, G, shortest):
     global paths
     paths = 0
 
-    times_visited = [[0 for _ in range(len(G[i]))] for i in range(n)]
-
-    dfs_with_limit(s, -1, e, [s], G, shortest, times_visited)
-    for v in range(n):
-        for j in range(len(G[v])):
-            if times_visited[v][j] == paths:
-                return (v, G[v][j])
+    times_visited = [[0 for _ in range(n)] for _ in range(n)]
+    dfs_with_limit(s,-1, e, [s], G, shortest, times_visited)
+    for i in range(n):
+        for j in range(n):
+            if times_visited[i][j] == paths:
+                return (i, j)
     return None
 
 
@@ -77,7 +78,7 @@ def longer(G, s, t):
 # for i in range(len(G)):
 #     for el in G[i]:
 #         if el > i:
-#             print(i, el)
+#             print(i,el)
 # G = [[1, 4], [0, 2], [1, 3], [2, 5], [0, 5], [4, 3]]
 # s = 0
 # t = 2

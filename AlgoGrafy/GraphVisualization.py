@@ -1,7 +1,15 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 from random import randint
-from pomocne import *
+# from pomocne import *
+def conv_to_im(G):  # lista sasiedztwa -> macierz incydencji:
+    n = len(G)
+    IM = [[False for _ in range(n)] for _ in range(n)]
+    for v in range(n):
+        for u in G[v]:
+            IM[v][u] = True
+    return IM
+
 
 def GraphGenerator(n, m, directed=False):
     G = [[0 for _ in range(n)] for _ in range(n)]
