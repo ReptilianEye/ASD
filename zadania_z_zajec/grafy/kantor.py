@@ -1,0 +1,1 @@
+#Waluty to wierzchołki, a wagi krawedzi to kursy. Nalezy sprawdzic, czy istnieje taki cykl aby wrocic z wieksza iloscia pieniedzy niz kiedy zaczynalismy

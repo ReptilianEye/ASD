@@ -1,0 +1,6 @@
+# zadanie polega na znalezieniu najkrotszej scieżki, takiej, że distance[s] = a1 * a2 * a3...
+
+# rozwiazanie:
+# aby miec sume wag, a nie ich iloczyn mozna wyjsc z obserwacji, że:
+# log(a1*a2*a3...) = log(a1) + log(a2) + log(a3)...
+# W takim razie, należy zmienić wage_krawedzi -> log(waga_krawedzi)

@@ -42,7 +42,7 @@ def shortest_paths_dijkstra(G, s):
 
 def read_data():
     with open("dane_dj.in") as file:
-        s,n,edges = tuple(int(num) for num in file.readline().strip().split(" "))
+        s,n = tuple(int(num) for num in file.readline().strip().split(" "))
         G = [[] for _ in range(s+n)]
         for line in file:
             v, u, wage = tuple(int(num) for num in line.strip().split(" "))
