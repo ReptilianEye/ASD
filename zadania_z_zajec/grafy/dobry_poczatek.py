@@ -91,7 +91,7 @@ def solve(G):
     rev_G = reverse_graph(G)
     finish_order = deque()
     vis = [False for _ in range(n)]
-    for v in range(n):
+    for v in range(n-1,-1,-1):
         if not vis[v]:
             prepare_order(v, G, vis, finish_order)
     vis = [False for _ in range(n)]
@@ -124,7 +124,7 @@ def make_graph():
     return G
 
 
-G = make_graph()
+G = make_graph()  # G = [[2, 4, 5], [5], [3, 4], [0], [1, 5], []]
 # G = [
 #     [3],
 #     [0],

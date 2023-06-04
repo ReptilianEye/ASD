@@ -70,7 +70,7 @@ def kruskal(G):
             mst[v].append((u, w))
             union(x, y)
             e += 1
-    add_lacking_edges(mst)
+    add_lacking_edges(mst) #kiedy graf jest nieskierowany
     return mst
 
 

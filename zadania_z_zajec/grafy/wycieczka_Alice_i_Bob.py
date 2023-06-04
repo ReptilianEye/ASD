@@ -48,22 +48,22 @@ def trip(G, a, b, who_starts, previous_vertice):
             visited[u] = True
             #if u == 7: print(u,previous_edge[u])
             if previous_edge[u] == 0:
-                for v in G[u]:
-                    relax(u, v[0], v[1], previous_vertice,
+                for v, w in G[u]:
+                    relax(u, v, w, previous_vertice,
                           previous_edge, distance, Q)
             else:
-                for v in G[u]:
-                    relax(u, v[0], 0, previous_vertice,
+                for v, w in G[u]:
+                    relax(u, v, 0, previous_vertice,
                           previous_edge, distance, Q)
 
     print(distance)
     return distance[b]
 
 
-def initialize(G, a, b):
+def solve(G, a, b):
     n = len(G)
-    previous_vertice_a = [None for _ in range(n)]
-    previous_vertice_b = [None for _ in range(n)]
+    previous_vertice_a = [None]*n
+    previous_vertice_b = [None]*n
     a_starts = trip(G, a, b, 0, previous_vertice_a)
     b_starts = trip(G, a, b, inf, previous_vertice_b)
     if a_starts < b_starts:
@@ -107,5 +107,5 @@ Graph2 = [[(21, 10), (6, 15), (5, 90), (2, 30)],
 # for i in range(len(Graph2)):
 #     for u in Graph2[i]:
 #         print(i, u[0], u[1])
-print(initialize(Graph1, 0, 1))
+print(solve(Graph1, 0, 1))
 # print(initialize(Graph2, 0, 20))

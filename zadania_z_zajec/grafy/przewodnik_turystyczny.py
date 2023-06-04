@@ -25,7 +25,7 @@ def prepare_graph():
     return G
 
 
-def prepare_indegrees(G, S, K):
+def prepare_indegreesV1(G, S, K):
     n = len(G)
     indegrees = [0 for _ in range(n)]
     vis = [False for _ in range(n)]

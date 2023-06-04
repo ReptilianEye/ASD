@@ -91,9 +91,10 @@ def binworker(M):
     G = prepare(M)
     res = mflow(G, 0, 2*n+1)
     return res
+  
 
 
-print(binworker(M))
+
 
 # zmien all_tests na True zeby uruchomic wszystkie testy
-# runtests(binworker, all_tests=False)
+runtests(binworker, all_tests=False)
